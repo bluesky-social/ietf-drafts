@@ -143,21 +143,24 @@ For the sake of illustration assume the following depth calculations:
 - `depth(A|E|I) = 1`
 - `depth(B|C|F|G|H) = 0`
 
-```tsx
+~~~aasvg
          *
          |
    -------------
   |      |      |
   *      D      *
-	|             |
+  |             |
  ---          -----
 |   |        |  |  |
 A   *        E  *  I
-	  |           |
-	 ---        -----
-	|   |      |  |  |
+    |           |
+   ---        -----
+  |   |      |  |  |
   B   C      F  G  H
-```
+~~~
+{: #f-mst-example title="Example MST Structure"}
+
+
 
 ### Empty Nodes
 
@@ -241,10 +244,11 @@ Following the header, each repository block is serialized by concatenating:
 2. The block's content hash, prefixed with `0x017112` as specified in the CBOR Encoding section (link TODO)
 3. The CBOR-encoded block data
 
-```tsx
+~~~aasvg
 |------- Header -------| |------------------ Data ------------------|
 [ int | Header block ] [ int | hash | block ] [ int | hash | block ] …
-```
+~~~
+{: #f-serialization title="Repo Serialization Layout"}
 
 ### Block Ordering
 
