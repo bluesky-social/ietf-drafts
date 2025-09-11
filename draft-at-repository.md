@@ -89,8 +89,26 @@ normative:
     target: https://dwarfstd.org/doc/DWARF5.pdf
     author:
       -
-        fullname: DWARF Debugging Information Format Committee
+        organization: DWARF Debugging Information Format Committee
+  SEC2:
+    title: "SEC 2: Recommended Elliptic Curve Domain Parameters"
+    date: January 2010
+    target: https://www.secg.org/sec2-v2.pdf
+    author:
+      -
+        organization: Standards for Efficient Cryptography Group
 
+informative:
+  AT-ARCH:
+    title: "Authenticated Transfer Architecture Overview"
+    date: draft-at-architecture
+    author:
+      -
+        fullname: Daniel Holmgren
+        organization: Bluesky
+      -
+        fullname: Bryan Newbold
+        organization: Bluesky
 
 --- abstract
 
@@ -106,6 +124,8 @@ The Authenticated Transfer (AT) repository and synchronization protocol addresse
 AT introduces a model where user data is stored in cryptographically signed repositories that can be hosted, synchronized, and distributed by any compatible server while preserving data authenticity and user ownership. Each repository consists of a set of CBOR-encoded objects called records, organized lexicographically. The cryptographic structure allows repository contents to be re-distributed and cached by any network participant without requiring trust in intermediary hosts.
 
 The synchronization system provides efficient mechanisms for propagating repository state changes across the network, supporting both real-time streaming updates and bulk synchronization scenarios. The protocol can detect dropped or withheld updates and provides cryptographic proofs for all operations, including record deletions, ensuring that consumers can maintain accurate and complete views of repository state.
+
+This document specifically deals with the repository and sync protocol. Overall network architecture is described further in {{AT-ARCH}}.
 
 # Repository {#repo}
 
@@ -298,8 +318,8 @@ To generate a commit signature:
 
 AT implementations must support both of the following elliptic curves and signature algorithms:
 
-- NIST P-256 (also known as secp256r1 or p256) [[SEC2](https://www.secg.org/sec2-v2.pdf)]
-- secp256k1 (also known as k256) [[SEC2](https://www.secg.org/sec2-v2.pdf)]
+- NIST P-256 (also known as secp256r1 or p256) {{SEC2}}
+- secp256k1 (also known as k256) {{SEC2}}
 
 ### Signature Canonicalization {#sig-canonicalization}
 
