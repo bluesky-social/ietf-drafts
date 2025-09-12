@@ -60,7 +60,7 @@ normative:
       -
         fullname: Christopher Allen
         organization: Blockchain Commons
-  CID:
+  CONTROLLEDID:
     title: "Controlled Identifiers v1.0"
     date: May 2025
     target: https://www.w3.org/TR/2025/REC-cid-1.0-20250515/
@@ -169,7 +169,7 @@ DIDs are globally unique identifiers that resolve to DID Documents containing cr
 
 Each repository must reference exactly one DID, and each DID may be associated with at most one AT repository.
 
-The signing key for repository commits is specified within the DID document's `verificationMethod` array. The key entry must have an `id` field terminating in `#atproto`. When multiple possible verification methods are present, implementations must use the first valid entry and ignore subsequent ones. The public key must be encoded using the `publicKeyMultibase` format as specified in {{CID}}. The signing key must use one of the signing algorithms described in {{sig-curves}}.
+The signing key for repository commits is specified within the DID document's `verificationMethod` array. The key entry must have an `id` field terminating in `#atproto`. When multiple possible verification methods are present, implementations must use the first valid entry and ignore subsequent ones. The public key must be encoded using the `publicKeyMultibase` format as specified in {{CONTROLLEDID}}. The signing key must use one of the signing algorithms described in {{sig-curves}}.
 
 DID resolution may return supplementary information beyond the signing key, including canonical repository hosting locations, alternative user identifiers, or relevant service endpoints.
 
