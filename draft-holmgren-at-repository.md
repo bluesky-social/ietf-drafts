@@ -279,24 +279,24 @@ The following example shows an MST node at layer 1 containing two subtree pointe
 
 This node would be encoded as follows:
 
-~~~json
+~~~
 {
-	l: 0x017112643b9326...
-	e: [
-		{
-			p: 0,
-			k: "key7",
-			v: 0x0171122d9aa87e...
-			t: 0x01711247e2886f...
-		},
-		{
-			p: 3,
-			k: "10",
-			v: 0x01711210b6da2c...
-			t: null
-		}
-	]
-{
+  l: 0x017112643b9326...
+  e: [
+    {
+      p: 0,
+      k: "key7",
+      v: 0x0171122d9aa87e...,
+      t: 0x01711247e2886f...
+    },
+    {
+      p: 3,
+      k: "10",
+      v: 0x01711210b6da2c...,
+      t: null
+    }
+  ]
+}
 ~~~
 
 ## Commit Signatures {#signatures}
