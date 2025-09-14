@@ -14,6 +14,7 @@ area: "Applications and Real-Time Area"
 workgroup:
 keyword:
 venue:
+  github: "bluesky-social/ietf-drafts"
 
 author:
  -
@@ -109,6 +110,7 @@ informative:
       -
         fullname: Daniel Holmgren
         organization: Bluesky Social
+...
 
 --- abstract
 
