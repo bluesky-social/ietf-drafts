@@ -117,7 +117,7 @@ This document specifies the repository and synchronization semantics for Authent
 
 --- middle
 
-# Introduction {#user-id}
+# Introduction {#intro}
 
 The Authenticated Transfer (AT) repository and synchronization protocol addresses the challenges of building decentralized applications that require consistent data replication across distributed multi-party infrastructure. Traditional centralized platforms maintain user data within proprietary systems, creating vendor lock-in and limiting user agency over their digital identity and published content.
 
