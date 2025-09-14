@@ -262,7 +262,7 @@ For the sake of illustration assume the following layer calculations:
 - `layer(A|E|I) = 1`
 - `layer(B|C|F|G|H) = 0`
 
-```tsx
+~~~aasvg
          *
          |
    -------------
@@ -276,7 +276,8 @@ A   *        E  *  I
    ---        -----
   |   |      |  |  |
   B   C      F  G  H
-```
+~~~
+{: #f-mst-example title="Example MST Structure"}
 
 ### Empty Nodes {#mst-empty-nodes}
 
@@ -310,7 +311,7 @@ The following example shows an MST node at layer 1 containing two subtree pointe
 
 This node would be encoded as follows:
 
-```json
+~~~json
 {
 	l: 0x017112643b9326...
 	e: [
@@ -328,7 +329,7 @@ This node would be encoded as follows:
 		}
 	]
 {
-```
+~~~
 
 ## Commit Signatures {#signatures}
 
@@ -391,10 +392,11 @@ Following the header, each repository block is serialized by concatenating:
 2. The block's content hash, prefixed with `0x017112` as specified in {{cbor}}
 3. The CBOR-encoded block data
 
-```tsx
-|------ Header ------| |--------------------- Data ---------------------|
-[ int | Header block ] [ int | hash | block ] [ int | hash | block ] ...
-```
+~~~aasvg
+|------- Header -------| |------------------ Data ------------------|
+[ int | Header block ] [ int | hash | block ] [ int | hash | block ] …
+~~~
+{: #f-serialization title="Repo Serialization Layout"}
 
 ### Block Ordering {#serialization-ordering}
 
