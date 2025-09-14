@@ -14,6 +14,7 @@ area: "Applications and Real-Time Area"
 workgroup:
 keyword:
 venue:
+  github: "bluesky-social/ietf-drafts"
 
 author:
  -
@@ -164,23 +165,36 @@ informative:
         organization: Okta
       -
         fullname: Emelia Smith
-
+  ATPAPER:
+    title: "Bluesky and the AT Protocol: Usable Decentralized Social Media"
+    date: December 2024
+    target: https://doi.org/10.1145/3694809.3700740
+    author:
+      -
+        fullname: Martin Kleppmann
+      -
+        fullname: Paul Frazee
+      -
+        fullname: Jake Gold
+      -
+        fullname: Jay Graber
+      -
+        fullname: Daniel Holmgren
+      -
+        fullname: Devin Ivy
+      -
+        fullname: Jeromy Johnson
+      -
+        fullname: Bryan Newbold
+      -
+        fullname: Jaz Volpert
+...
 
 --- abstract
 
 Authenticated Transfer (AT) is a collection of protocol components that together provide a generic framework for interoperable social web applications, using global aggregations of interlinked, self-certifying data records.
 
 This informational document provides an overview of the entire system, as implemented in late 2025. Some of those components may be in scope as work for the IETF, while other components may not. Many components are general-purpose and may find use outside of the context of AT. The intent of this document is to provide context for how all the components can fit together for certain use cases.
-
---- begin
-
-# Note to Readers
-
-The issues list for this draft can be found at <https://github.com/bluesky-social/ietf-drafts/issues>.
-
-To provide feedback, use the issue tracker or email the document editors.
-
-For additional information, see <https://atproto.com>.
 
 --- middle
 
@@ -281,7 +295,7 @@ References to media files (blobs) are represented in both JSON and CBOR using a 
 
 ## AT References (URIs) {#repo-uri}
 
-In the context of an AT repostiory, keys (or paths) are simple strings with the format `<collection>/<record-key>`. For example, `app.example.blog.post/3kghpsza2uu2j`. The collection part describes the data schema of the record, and the record key identifies the specific record. Depending on the data schema, the record key may have a fixed value if only a single instance is expected (eg, `self`), a compact sortable timestamp format (called Timestamp Identifier, or TID), or a more open-ended or application-specific string syntax (which is still URL-safe).
+In the context of an AT repository, keys (or paths) are simple strings with the format `<collection>/<record-key>`. For example, `app.example.blog.post/3kghpsza2uu2j`. The collection part describes the data schema of the record, and the record key identifies the specific record. Depending on the data schema, the record key may have a fixed value if only a single instance is expected (eg, `self`), a compact sortable timestamp format (called Timestamp Identifier, or TID), or a more open-ended or application-specific string syntax (which is still URL-safe).
 
 Individual records can be globally referenced using a URI schema, `at://`. The structure of these references is:
 
@@ -301,7 +315,7 @@ Verifiable links between records across the network facilitate rich application 
 
 AT record data types can be described with a schema definition language named Lexicon. The Lexicon language is outside the scope of this overview document. It has many features and properties in common with JSON Schemas ({{JSONSCHEMA}}), but includes a global schema namespace system, an "open union" data type for third-party schema extensibility, and rules for evolving schemas over time without breaking existing data or applications.
 
-Lexicon schemas are identified by Namespace Identifiers (NSIDs), which have authority rooted in the global DNS system. NSID syntax is to take a DNS hostname, reverse the order of parts, and then append a single additional name. The set of all NSIDs which differ only by the final part is refered to as a "group". For example, the NSID `app.example.blog.post` has the group `app.example.blog` and final name `blog`; it corresponds to the hostname `blog.example.app`.
+Lexicon schemas are identified by Namespace Identifiers (NSIDs), which have authority rooted in the global DNS system. NSID syntax is to take a DNS hostname, reverse the order of parts, and then append a single additional name. The set of all NSIDs which differ only by the final part is referred to as a "group". For example, the NSID `app.example.blog.post` has the group `app.example.blog` and final name `blog`; it corresponds to the hostname `blog.example.app`.
 
 AT specifies a mechanism for resolving NSIDs to public schema documents, using the AT system itself. The hostname corresponding to a group can have a DNS TXT record registered with the part prefix `_lexicon`, and value indicating a DID (with prefix `did=`, same as with handle resolution). The account indicated by the DID then publishes in their public repository a record with the collection `com.atproto.lexicon.schema`, and the record key is the full NSID of the schema. A complete AT Reference may look like:
 
@@ -451,6 +465,11 @@ Unless otherwise specified, public keys are encoded in "Multikey" string encodin
 
 In ECDSA, both key types have malleable signatures. In the context of AT data signatures, only "low-S" signatures are considered valid. This does not apply when using the same keys in other contexts, such as JWT signatures.
 
-.# Acknowledgements
+# Acknowledgements
+{:numbered="false"}
 
-TODO
+A complete description of the Authenticated Transfer system was jointly published by the protocol design team in [ATPAPER]. Since that publication, Matthieu Sieben has contributed significantly. Aaron Goldman contributed to an earlier prototype.
+
+The authors would like to sincerely thank the entire AT open source development community ("Atmosphere") for their feedback, commentary, creativity, and patience throughout the development of protocol.
+
+The AT system was directly informed and influenced by existing P2P and federated social web technologies, in particular Secure Scuttlebutt, dat://, IPFS, and ActivityPub. The authors would like to thank the designers and developers of these protocols for their ongoing contributions to the field and openness to collaboration.
