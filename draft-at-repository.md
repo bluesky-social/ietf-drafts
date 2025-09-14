@@ -28,15 +28,6 @@ author:
 normative:
   CBOR: RFC8949
   RFC7049: RFC7049
-  MST:
-    title: "Merkle Search Trees: Efficient State-Based CRDTs in Open Networks"
-    date: October 2019
-    target: https://inria.hal.science/hal-02303490/document
-    author:
-      -
-        fullname: Alex Auvolat
-      -
-        fullname: François Taïani
   DID:
     title: "Decentralized Identifiers  (DIDs) v1.0"
     date: July 2022
@@ -99,6 +90,15 @@ normative:
         organization: Standards for Efficient Cryptography Group
 
 informative:
+  MST:
+    title: "Merkle Search Trees: Efficient State-Based CRDTs in Open Networks"
+    date: October 2019
+    target: https://inria.hal.science/hal-02303490/document
+    author:
+      -
+        fullname: Alex Auvolat
+      -
+        fullname: François Taïani
   AT-ARCH:
     title: "Authenticated Transfer: Architecture Overview"
     date: draft-at-architecture
