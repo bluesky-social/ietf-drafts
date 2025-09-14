@@ -18,11 +18,11 @@ venue:
 author:
  -
     fullname: Daniel Holmgren
-    organization: Bluesky
+    organization: Bluesky Social
     email: daniel@blueskyweb.xyz
  -
     fullname: Bryan Newbold
-    organization: Bluesky
+    organization: Bluesky Social
     email: bryan@blueskyweb.xyz
 
 normative:
@@ -100,15 +100,15 @@ normative:
 
 informative:
   AT-ARCH:
-    title: "Authenticated Transfer Architecture Overview"
+    title: "Authenticated Transfer: Architecture Overview"
     date: draft-at-architecture
     author:
       -
-        fullname: Daniel Holmgren
-        organization: Bluesky
-      -
         fullname: Bryan Newbold
-        organization: Bluesky
+        organization: Bluesky Social
+      -
+        fullname: Daniel Holmgren
+        organization: Bluesky Social
 
 --- abstract
 
