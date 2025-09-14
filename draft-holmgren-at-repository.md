@@ -110,20 +110,52 @@ informative:
       -
         fullname: Daniel Holmgren
         organization: Bluesky Social
+  DIDWEB:
+    title: "did:web Method Specification (Draft)"
+    date: July 2024
+    target: https://w3c-ccg.github.io/did-method-web/
+    author:
+      -
+        fullname: Christian Gribneau
+        organization: Ology Newswire, Inc.
+      -
+        fullname: Michael Prorock
+        organization: mesur.io
+      -
+        fullname: Orie Steele
+        organization: Transmute
+      -
+        fullname: Oliver Terbu
+        organization: Consensys
+      -
+        fullname: Mike Xu
+        organization: Consensys
+      -
+        fullname: Dmitri Zagidulin
+        organization: Digital Bazaar
+  DIDPLC:
+    title: "did:plc Method Specification v0.1"
+    date: May 2023
+    target: https://web.plc.directory/spec/v0.1/did-plc
+    author:
+      -
+        fullname: Daniel Holmgren
+        organization: Bluesky Social
 ...
 
 --- abstract
 
 This document specifies the repository and synchronization semantics for Authenticated Transfer (AT), a protocol for cryptographically-verifiable storage and distribution of structured user-controlled data. It defines the AT repository that serves as the fundamental data storage model. It further specifies synchronization mechanisms that allow efficient distribution of repository changes to interested parties.
 
+This document specifically deals with the repository and sync protocol. Overall network architecture is described further in {{AT-ARCH}}.
 
 --- middle
 
-# Introduction {#intro}
+# Introduction {#user-id}
 
-The Authenticated Transfer (AT) repository and synchronization protocol addresses the challenges of building decentralized applications that require consistent data replication across distributed multi-party infrastructure. Traditional centralized platforms maintain user data within proprietary systems, creating vendor lock-in and limiting user agency over their digital identity and published content.
+The Authenticated Transfer (AT) repository and synchronization protocol addresses the challenges of building decentralized applications that require consistent data replication across distributed multi-party infrastructure. Traditional web platforms maintain user data at a single network location, creating vendor lock-in and limiting user agency over their digital identity and published content.
 
-AT introduces a model where user data is stored in cryptographically signed repositories that can be hosted, synchronized, and distributed by any compatible server while preserving data authenticity and user ownership. Each repository consists of a set of CBOR-encoded objects called records, organized lexicographically. The cryptographic structure allows repository contents to be re-distributed and cached by any network participant without requiring trust in intermediary hosts.
+In the AT model, user data is stored in cryptographically signed repositories that can be hosted, synchronized, and distributed by any compatible server while preserving data authenticity and user ownership. Each repository consists of a set of CBOR-encoded objects called records, organized lexicographically by type. The cryptographic structure allows repository contents to be re-distributed and cached by any network participant without requiring trust in intermediary hosts.
 
 The synchronization system provides efficient mechanisms for propagating repository state changes across the network, supporting both real-time streaming updates and bulk synchronization scenarios. The protocol can detect dropped or withheld updates and provides cryptographic proofs for all operations, including record deletions, ensuring that consumers can maintain accurate and complete views of repository state.
 
@@ -131,17 +163,17 @@ This document specifically deals with the repository and sync protocol. Overall 
 
 # Repository {#repo}
 
-An AT repository provides a key-value interface where values are CBOR-encoded objects known as records. Applications interact with repositories through standard CRUD operations while the underlying merkle tree structure ensures cryptographic verification of all modifications.
+An AT repository provides a sorted key-value interface where values are CBOR-encoded objects refered to as records. Applications interact with repositories through standard CRUD operations while the underlying Merkle tree structure enables cryptographic verification of all modifications.
 
-Repository authority is established through Decentralized Identifiers (DIDs). Each repository is associated with exactly one DID, which resolves to the cryptographic key material necessary for verifying repository commits.
+Repository authority is established through Decentralized Identifiers (DIDs). Each repository is associated with exactly one DID, which resolves to the cryptographic key material necessary for verifying repositories.
 
-The repository structure provides several advantages over independently signed objects:
+The repository structure provides several advantages over individualy signed objects:
 
-- Simplified key rotation through a single commit-level signature rather than per-record signatures
+- Simplified key rotation through a single repository-level signature rather than record-level signatures
 - Cryptographic proofs of record deletion
 - Completeness guarantees that enable observers to detect withheld, missing, or outdated records
 
-The following describes version `3` of the AT repository format. Both previous versions are deprecated, and implementations do not need to support them.
+This document describes version `3` of the AT repository format. Both previous versions are deprecated, and implementations do not need to support them.
 
 ## Repository Semantics {#repo-semantics}
 
@@ -149,15 +181,15 @@ Records are discrete units of user data, each CBOR-encoded and identified by a u
 
 Repositories support individual record operations as well as batch writes that group multiple operations under a single commit, or signed mutation, to the repository. When applying batch operations, implementations should ensure that the resulting changes can be adequately represented within the synchronization system (see {{commit-events}}).
 
-Repository efficiency, especially in partial synchronization situations, benefits from grouping related records around lexicographically similar keys. This grouping allows for structural sharing within the repository data structure and reduces cryptographic proof sizes.
+By convention, records are organized using a hierarchical two-part key structure consisting of a collection identifier and a record key. Record keys may be derived from timestamps or other monotonically increasing values, ensuring that new records are typically added to the lexicographically rightmost position within their collection.
 
-Records are typically organized using a hierarchical two-part key structure consisting of a collection identifier and a record key. Record keys may be derived from timestamps or other monotonically increasing values, ensuring that new records are typically added to the lexicographically rightmost position within their collection.
+Repository efficiency, especially in partial synchronization situations, benefits from grouping related records around lexicographically similar keys. This grouping allows for structural sharing within the repository data structure and reduces cryptographic proof sizes.
 
 ## Repository Structure {#repo-structure}
 
 AT repositories are organized as a [Merkle Search Tree](https://inria.hal.science/hal-02303490/document) ({{MST}}) with a cryptographically signed commit referencing the tree root.
 
-The MST provides several key properties for repository operations. As a content-addressed structure, it enables efficient verification of data. The MST maintains lexicographic key ordering, enabling structural sharing of proof nodes for related records. It is probabilistically self-balancing, offering consistent performance characteristics. Additionally the MST exhibits unicity, meaning that any given set of keys and values will always produce the same tree structure and root hash regardless of insertion order.
+The MST provides several fundamental properties for repository operations. As a content-addressed structure, it enables efficient verification of data. The MST maintains lexicographic key ordering, enabling structural sharing of intermediate tree nodes for related records. It is probabilistically self-balancing, offering consistent performance characteristics. Additionally the MST exhibits unicity, meaning that any given set of keys and values will always produce the same tree structure and root hash regardless of insertion order.
 
 Repository contents are encoded using deterministic CBOR serialization and organized as a directed acyclic graph where data objects reference each other through content hashes. These hash-identified data objects, referred to as "blocks," include three distinct types: commit objects, MST internal nodes, and user records.
 
@@ -171,11 +203,11 @@ DIDs are globally unique identifiers that resolve to DID Documents containing cr
 
 Each repository must reference exactly one DID, and each DID may be associated with at most one AT repository.
 
-The signing key for repository commits is specified within the DID document's `verificationMethod` array. The key entry must have an `id` field terminating in `#atproto`. When multiple possible verification methods are present, implementations must use the first valid entry and ignore subsequent ones. The public key must be encoded using the `publicKeyMultibase` format as specified in {{CONTROLLEDID}}. The signing key must use one of the signing algorithms described in {{sig-curves}}.
+The signing key for repository commits is specified within the DID document's `verificationMethod` array. The key entry must have an `id` field ending in `#atproto`. When multiple possible verification methods are present, implementations must use the first valid entry and ignore subsequent ones. The public key must be encoded using the `publicKeyMultibase` format as specified in {{CONTROLLEDID}}. The signing key must use one of the signing algorithms described in {{sig-curves}}.
 
 DID resolution may return supplementary information beyond the signing key, including canonical repository hosting locations, alternative user identifiers, or relevant service endpoints.
 
-AT restricts support to specific DID methods. Currently supported methods are `did:web` and `did:plc`. The resolution mechanisms and specifications for these methods are beyond the scope of this document.
+To ensure interoperability, AT restricts support to specific DID methods. Currently supported methods are `did:web` and `did:plc`. The resolution mechanisms and specifications for these methods are described in {{DIDWEB}} and {{DIDPLC}}.
 
 ## Commit Objects {#commits}
 
@@ -183,7 +215,7 @@ Commit objects serve as the authoritative root of each repository, establishing 
 
 A commit object contains the following data fields:
 
-- **`did`** (string, required): The resolvable user identifier associated with the repo as described in {{user-ids}}
+- **`did`** (string, required): The resolvable user identifier associated with the repository as described in {{user-ids}}
 - **`version`** (integer, required): Repository format version, fixed value of **`3`** for the current specification
 - **`data`** (hash link, required): Hash pointer to the root of the repository’s MST structure
 - **`rev`** (string, required): Repository revision identifier that functions as a logical clock and must increase monotonically (see {{revs}}).
@@ -218,7 +250,7 @@ Examples of layer calculation:
 - `key7`: SHA-256 begins `000111100011...` → layer 1
 - `key515`: SHA-256 begins `000000000111...` → layer 4
 
-When processing the MST structure, implementations must verify the layer assignment and ordering of keys. While this verification is essential for untrusted inputs, implementations should perform these checks consistently regardless of data source. Additional validation of node size limits and other structural parameters is required to prevent resource exhaustion attacks, as detailed in Security Considerations ({{security}}).
+When processing the MST structure, implementations must verify the layer assignment and ordering of keys. While this verification is most essential for untrusted inputs, implementations should perform these checks consistently regardless of data source. Additional validation of node size limits and other structural parameters is required to prevent resource exhaustion attacks, as detailed in Security Considerations ({{security}}).
 
 ### MST Construction Example {#mst-example}
 
@@ -230,7 +262,7 @@ For the sake of illustration assume the following layer calculations:
 - `layer(A|E|I) = 1`
 - `layer(B|C|F|G|H) = 0`
 
-~~~aasvg
+```tsx
          *
          |
    -------------
@@ -244,8 +276,7 @@ A   *        E  *  I
    ---        -----
   |   |      |  |  |
   B   C      F  G  H
-~~~
-{: #f-mst-example title="Example MST Structure"}
+```
 
 ### Empty Nodes {#mst-empty-nodes}
 
@@ -279,25 +310,25 @@ The following example shows an MST node at layer 1 containing two subtree pointe
 
 This node would be encoded as follows:
 
-~~~
+```json
 {
-  l: 0x017112643b9326...
-  e: [
-    {
-      p: 0,
-      k: "key7",
-      v: 0x0171122d9aa87e...,
-      t: 0x01711247e2886f...
-    },
-    {
-      p: 3,
-      k: "10",
-      v: 0x01711210b6da2c...,
-      t: null
-    }
-  ]
-}
-~~~
+	l: 0x017112643b9326...
+	e: [
+		{
+			p: 0,
+			k: "key7",
+			v: 0x0171122d9aa87e...
+			t: 0x01711247e2886f...
+		},
+		{
+			p: 3,
+			k: "10",
+			v: 0x01711210b6da2c...
+			t: null
+		}
+	]
+{
+```
 
 ## Commit Signatures {#signatures}
 
@@ -320,8 +351,8 @@ To generate a commit signature:
 
 AT implementations must support both of the following elliptic curves and signature algorithms:
 
-- NIST P-256 (also known as secp256r1 or p256) {{SEC2}}
-- secp256k1 (also known as k256) {{SEC2}}
+- NIST P-256 (also known as secp256r1 or p256) {{SEC2}
+- secp256k1 (also known as k256) {{SEC2}
 
 ### Signature Canonicalization {#sig-canonicalization}
 
@@ -335,9 +366,9 @@ Repository content requires consistent binary representation across all implemen
 
 For interoperability purposes, hash links between repository objects are encoded using a specific format within the CBOR structure. SHA-256 hash links are represented as CBOR byte strings under tag 42, with the byte string containing the 32-byte hash value prefixed by the fixed byte sequence `0x017112`.
 
-Hash links that point to binary data instead of other repository objects should be encoded similarly though prefixed by the fixed byte sequence `0x015512`.
+Hash links that point to arbitrary binary data instead of other repository objects should be encoded similarly though prefixed by the fixed byte sequence `0x015512`.
 
-## Repo Serialization Format {#serialization}
+## Repository Serialization Format {#serialization}
 
 Repositories are serialized for transmission and storage as a concatenated sequence of block data, where blocks represent the CBOR-encoded records, MST nodes, and commit objects that comprise the repository structure. The serialization is prefixed with a header that identifies the root block, typically the repository's commit object.
 
@@ -350,7 +381,7 @@ The header is constructed by CBOR-encoding an object with the following fields:
 - `version` (integer, required): Fixed value of `1`
 - `root` (array, required): Single-element array containing the hash link of the commit block
 
-The CBOR-encoded header is prefixed with its byte length encoded as an unsigned LEB128 integer as described in Section 7.6 {{DWARF}}.
+The CBOR-encoded header is prefixed with its byte length encoded as an unsigned LEB128 integer as described in Section 7.6 of {{DWARF}}.
 
 ### Block Format {#serialization-blocks}
 
@@ -360,11 +391,10 @@ Following the header, each repository block is serialized by concatenating:
 2. The block's content hash, prefixed with `0x017112` as specified in {{cbor}}
 3. The CBOR-encoded block data
 
-~~~aasvg
-|------- Header -------| |------------------ Data ------------------|
-[ int | Header block ] [ int | hash | block ] [ int | hash | block ] …
-~~~
-{: #f-serialization title="Repo Serialization Layout"}
+```tsx
+|------ Header ------| |--------------------- Data ---------------------|
+[ int | Header block ] [ int | hash | block ] [ int | hash | block ] ...
+```
 
 ### Block Ordering {#serialization-ordering}
 
@@ -374,19 +404,17 @@ Preorder traversal enables streaming verification of repositories, allowing pars
 
 # Synchronization {#sync}
 
-The AT synchronization model operates on the principle that any participant can independently verify and selectively consume repository updates without requiring trusted intermediaries.
+The AT synchronization model operates on the principle that any participant can independently verify repository updates. This allows sync to occur between any client and server without requiring that the server is a canonical or trusted host.
 
 AT supports multiple synchronization patterns: full repository synchronization for complete replicas, partial synchronization for specific record subsets, and proof-only synchronization for cryptographic verification without content retrieval.
 
-The typical synchronization workflow establishes baseline state through full synchronization, then maintains currency through incremental updates.
+The typical synchronization workflow establishes baseline state through full synchronization, then maintains currency through incremental updates. Full synchronization is performed by fetching a complete serialized repository over HTTPS.
 
 ## Repository Revisions {#revs}
 
-Each repository maintains a `rev` field (short for “revision”) that functions as a logical clock for the progression of the contents of the repo over time. The revision value is a short string value that must increase lexicographically with each new commit.
+Each repository maintains a `rev` field (short for “revision”) that functions as a logical clock for the progression of the contents of the repository over time. The revision value is a short string value that must increase lexicographically with each new commit.
 
 Revisions may be used when comparing two repositories, especially when obtained from a non-canonical host, to determine which is more recent.
-
-Repository hosts and indexing services may track the revision at which particular records are created, though this is not a protocol requirement.
 
 ### Timestamp Identifier Format {#tids}
 
@@ -420,23 +448,17 @@ Deleted records and past versions of updated records are excluded from diffs.
 
 With the exception of deleted record data, the diff may include additional blocks which receivers should ignore.
 
-Repository hosts may generate diffs in real-time for each commit or on-demand for specific baseline revisions. However, hosts are not required to maintain complete revision history and may lack access to prior repository states, particularly when hosting migrated repositories or operating with limited storage.
-
-When a host cannot provide an accurate diff from a requested baseline revision due to missing historical data, it may substitute a diff from an earlier available revision, effectively including additional blocks that encompass a longer change history. Hosts should select the most recent available baseline to minimize the diff size. Hosts are not expected to support diff generation between two arbitrary historical points.
-
-In the extreme case where no historical state is available, the host may provide the complete current repository, which constitutes a diff from the empty repository state. This flexibility ensures that synchronization can proceed regardless of available historical data, though consumers may receive more comprehensive change sets than originally requested.
-
-## Diff Verification Constraints {#diff-constraints}
+## Diff Verification Limitations {#diff-limits}
 
 Repository diffs present verification challenges for consumers who do not maintain complete repository state. These consumers often wish to authenticate repository content and utilize records without persisting the entire repository structure, making diffs an attractive option for lightweight verification.
 
-Diffs partially support this use case by providing a signed commit and the relevant portions of the merkle tree, creating a verifiable proof chain for record creations, updates, and deletions. When a recipient possesses both a diff and a corresponding list of operations, they can use the diff contents to cryptographically verify that the operations are authentic.
+Diffs partially support this use case by providing a signed commit and the relevant portions of the Merkle tree, creating a verifiable proof chain for record creations, updates, and deletions. When a recipient possesses both a diff and a corresponding list of operations, they can use the diff contents to cryptographically verify that the operations are authentic.
 
-However, observers without knowledge of the complete baseline repository state cannot reliably enumerate all operations by examining the diff contents alone. While comprehensive diffs may reveal created or updated records by traversing to the leaf nodes, they provide no information about deletion operations that occurred during the period that the diff represents.
+However, observers without knowledge of the complete baseline repository state cannot reliably enumerate all operations by examining the diff contents alone. While comprehensive diffs  reveal created or updated records by traversing to the leaf nodes, they provide no information about deletion operations that occurred during the period that the diff represents.
 
-Diffs enable verification of a known operation list but cannot be used to exhaustively reconstruct the complete operation list from diff contents alone. Conversely, if a recipient has a complete repository structure from some prior revision and receives a diff representing changes since that revision, they can compute the complete set of operations that occurred between the two versions.
+This means that while diffs enable verification of a known operation list, they cannot be used to exhaustively reconstruct the complete operation list from diff contents alone. However, if a recipient has a complete repository structure from some prior revision and receives a diff representing changes since that revision, they can compute the complete set of operations that occurred between the two versions.
 
-This asymmetry means diffs cannot substitute for complete state tracking when comprehensive operation enumeration is required.
+This asymmetry means diffs alone cannot substitute for complete state tracking when comprehensive operation enumeration is required. An efficient mechanism for cross-verification of a diff and enumerated operation list against the prior repository commit state is described in {#streaming-validation}.
 
 # Real-time synchronization {#realtime}
 
@@ -446,7 +468,7 @@ Real-time streams of repository updates are often referred to as the “firehose
 
 Each event includes a monotonic cursor that establishes a total ordering across all repository changes from a given host. This ordering enables reliable event replay and ensures that consumers can maintain consistent state even when reconnecting after network interruptions.
 
-AT allows consumers to maintain fully-verified copies of repository records without storing the underlying merkle tree structure, providing an efficient method for applications that need authenticated content access without the overhead of complete repository replication.
+AT allows consumers to maintain fully-verified copies of repository records without storing the underlying Merkle tree structure, providing an efficient method for applications that need authenticated content access without the overhead of complete repository replication.
 
 ## Cursors {#cursors}
 
@@ -470,7 +492,7 @@ The real-time stream delivers two types of events: `commit` and `sync`.
 
 Commit events represent an atomic set of repository modifications and consist of a repository diff combined with some supporting metadata.
 
-The diff MUST include the new commit and all blocks in the merkle proof chain for any modified key, as well as blocks for keys directly adjacent to the modified keys. The rationale for including adjacent keys is detailed in {{streaming-validation}}.
+The diff MUST include the new commit and all blocks in the Merkle proof chain for any modified key, as well as blocks for keys directly adjacent to the modified keys. The rationale for including adjacent keys is detailed in {{streaming-validation}}.
 
 The metadata provides additional context required for processing and verification and includes:
 
@@ -526,7 +548,7 @@ Repositories constitute untrusted input as account holders have complete control
 
 ## CBOR Processing limits {#security-cbor}
 
-Generic precautions must be followed when processing CBOR data, including enforcement of maximum serialized object size, maximum recursion depth for nested structures, and memory budget limits for deserialized data. While some CBOR libraries include these protections by default, implementations should verify and configure appropriate limits regardless of library defaults.
+Generic precautions must be followed when processing CBOR data, including enforcement of maximum serialized object size, maximum recursion depth for nested structures, and memory budget limits for deserialized data. While some CBOR implementations include these protections by default, implementations should verify and configure appropriate limits regardless of library defaults.
 
 ## MST Structure Attacks {#security-mst}
 
