@@ -197,7 +197,7 @@ Large binary data such as images and media files are not stored directly within 
 
 ## User Identifiers {#user-ids}
 
-Repository authority is established through a resolvable user identifier specified in the repository commit ({{commits}}). AT Protocol employs Decentralized Identifiers (DIDs) as defined in {{DID}} for this purpose.
+Repository authority is established through a resolvable user identifier specified in the repository commit ({{commits}}). AT employs Decentralized Identifiers (DIDs) as defined in {{DID}} for this purpose.
 
 DIDs are globally unique identifiers that resolve to DID Documents containing cryptographic key material and other metadata associated with the identifier. Resolution enables independent verification of repository commits without dependence on centralized authorities.
 
