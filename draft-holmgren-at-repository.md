@@ -3,7 +3,7 @@ title: "Authenticated Transfer Repository and Synchronization"
 abbrev: "AT Repo and Sync"
 category: std
 
-docname: draft-at-repository-latest
+docname: draft-holmgren-at-repository-latest
 submissiontype: IETF
 number:
 updates:
@@ -102,7 +102,7 @@ informative:
         fullname: François Taïani
   AT-ARCH:
     title: "Authenticated Transfer: Architecture Overview"
-    date: draft-at-architecture
+    date: draft-newbold-at-architecture
     author:
       -
         fullname: Bryan Newbold

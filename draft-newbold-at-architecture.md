@@ -3,7 +3,7 @@ title: "Authenticated Transfer: Architecture Overview"
 abbrev: "AT Architecture"
 category: info
 
-docname: draft-at-architecture-latest
+docname: draft-newbold-at-architecture-latest
 submissiontype: IETF
 number:
 updates:
@@ -88,7 +88,7 @@ informative:
         fullname: François Taïani
   ATREPO:
     title: "Authenticated Transfer Repository and Synchronization"
-    date: draft-at-repository
+    date: draft-newbold-at-repository
     author:
       -
         fullname: Daniel Holmgren
