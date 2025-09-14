@@ -88,7 +88,8 @@ informative:
         fullname: François Taïani
   ATREPO:
     title: "Authenticated Transfer Repository and Synchronization"
-    date: draft-newbold-at-repository
+    date: September 2025
+    target: https://datatracker.ietf.org/doc/draft-holmgren-at-repository/
     author:
       -
         fullname: Daniel Holmgren
