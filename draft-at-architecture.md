@@ -1,6 +1,6 @@
 ---
 title: "Authenticated Transfer: Architecture Overview"
-abbrev: "AT Architecture Overview"
+abbrev: "AT Architecture"
 category: info
 
 docname: draft-at-architecture-latest
@@ -303,7 +303,11 @@ Individual records can be globally referenced using a URI schema, `at://`. The s
 at:// <did> / <collection> / <record-key>
 ~~~
 
-For example, `at://did:plc:ewvi7nxzyoun6zhxrhs64oiz/app.example.blog.post/3kjbtzlhayo2p`.
+For example:
+
+~~~
+at://did:plc:ewvi7nxzyoun6zhxrhs64oiz/app.example.blog.post/3kjbtzlhayo2p
+~~~
 
 ## Cross-Repository References {#repo-ref}
 
