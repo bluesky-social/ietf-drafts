@@ -7,7 +7,7 @@ The work will be based on draft-holmgren-at-repository and the pre-standardizati
 
 The working group will focus on a general purpose data repository structure for public user data records, and mechanisms for synchronizing repositories across the network. Repositories are cryptographically verifiable and publicly published.
 
-Cryptographic verification of repository signatures requires a system for resolving account identifiers to public signing keys. Account identifiers are also used to resolve the current hosting location. Account identifiers should be globally resolvable and persist across hosting migrations. The working group will specify interface requirements and selection criteria for account identifier systems. To ensure broad interoperation in the global network, the working group will have authority over a small set of recommended identifier systems. Backwards compatibility will be maintained for the two account identifier systems supported in the currently deployed network (PLC and did:web).
+Cryptographic verification of repository signatures requires a system for resolving account identifiers to public signing keys. Account identifiers are also used to resolve the current hosting location. Account identifiers should be globally resolvable and persist across hosting migrations. The working group will specify interface requirements and selection criteria for account identifier systems. To ensure broad interoperation in the global network, the working group will maintain a list indicating which identifier systems are recommended as a baseline. Backwards compatibility will be maintained for the two account identifier systems supported in the currently deployed network (PLC and did:web).
 
 Key goals for the working group:
 
