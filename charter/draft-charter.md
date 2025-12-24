@@ -26,5 +26,5 @@ The following are out of scope for the working group:
 - Any application-specific data schemas
 - Any social application semantics
 
-The ATP working group will consult the Crypto Forum Research Group (CFRG) and Security Area groups concerning the use and selection of any cryptographic systems. Privacy and Centralization considerations will be documented (eg, per RFC 6873) and will inform design decisions.
+The ATP working group will consult the Crypto Forum Research Group (CFRG) and Security Area groups concerning the use and selection of any cryptographic systems. Privacy and Centralization considerations will be documented (eg, per RFC 6973) and will inform design decisions.
 
