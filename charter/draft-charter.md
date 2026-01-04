@@ -7,17 +7,22 @@ The work will be based on draft-holmgren-at-repository and the pre-standardizati
 
 The working group will focus on a general purpose data repository structure for public user data records, and mechanisms for synchronizing repositories across the network. Repositories are cryptographically verifiable and publicly published.
 
-Cryptographic verification of repository signatures requires a system for resolving account identifiers to public signing keys. Account identifiers are also used to resolve the current hosting location. Account identifiers should be globally resolvable and persist across hosting migrations. The working group will specify interface requirements and selection criteria for account identifier systems. To ensure broad interoperation in the global network, the working group will have authority over a small set of recommended identifier systems. Backwards compatibility will be maintained for the two account identifier systems supported in the currently deployed network (PLC and did:web).
+Cryptographic verification of repository signatures requires a system for resolving account identifiers to public signing keys. Account identifiers are also used to resolve the current hosting location. Account identifiers should be globally resolvable and persist across hosting migrations. The working group will specify interface requirements and selection criteria for account identifier systems. To ensure broad interoperability in the global network, the working group will maintain a list indicating which identifier systems are recommended as a baseline. Backwards compatibility will be maintained for the two account identifier systems supported in the currently deployed network (PLC and did:web).
 
-Key goals for the working group:
+Deliverables for the working group:
 
-- A low-latency streaming synchronization protocol, including notification of data deletion
+- Standards track document(s) describing a repository data structure, an encoding format for structured data records (CBOR and JSON representations), and an export format for transfer of data repositories
+- Standards track document(s) describing a low-latency streaming synchronization protocol
+- Standards track document(s) describing a URI scheme ('at:') for persistent references between data records
+- Document(s) describing interface requirements and selection criteria for account identifier resolution systems, and defining
+- A public registry and update process for recommending specific account identifier resolution systems
+
+Key goals for ATP are:
+
+- The streaming protocol should include notification of data deletion
 - The streaming protocol should allow for alternative network transports
 - Scale to global network applications
 - Support for redistribution of authenticated data via multiple layers of intermediary parties
-- Encoding format for structured data records (CBOR and JSON representations)
-- Export format for transfer of data repositories
-- URI scheme for persistent references between data records
 - Account migration between network locations (eg, hosting providers) does not break references or graph relationships
 
 The following are out of scope for the working group:
@@ -26,5 +31,5 @@ The following are out of scope for the working group:
 - Any application-specific data schemas
 - Any social application semantics
 
-The ATP working group will consult the Crypto Forum Research Group (CFRG) and Security Area groups concerning the use and selection of any cryptographic systems. Privacy and Centralization considerations will be documented (eg, per RFC 6873) and will inform design decisions.
+The ATP working group will consult the Crypto Forum Research Group (CFRG) and Security Area groups concerning the use and selection of any cryptographic systems. Privacy and Centralization considerations will be documented (eg, per RFC 6973) and will inform design decisions.
 
