@@ -304,27 +304,27 @@ MST nodes contain the following fields:
 
 The following example shows an MST node at layer 1 containing two subtree pointers and two key-value entries. The node contents in order are:
 
-- Left subtree: hash link `0x017112643b9326...`
-- Entry: `key7` → record hash link `0x0171122d9aa87e...`
-- Right subtree: hash link `0x01711247e2886f...`
-- Entry: `key10` → record hash link `0x01711210b6da2c...`
+- Left subtree: hash link `0x01711220643b9326...`
+- Entry: `key7` → record hash link `0x017112202d9aa87e...`
+- Right subtree: hash link `0x0171122047e2886f...`
+- Entry: `key10` → record hash link `0x0171122010b6da2c...`
 
 This node would be encoded as follows:
 
 ~~~json
 {
-	l: 0x017112643b9326...
+	l: 0x01711220643b9326...
 	e: [
 		{
 			p: 0,
 			k: "key7",
-			v: 0x0171122d9aa87e...
-			t: 0x01711247e2886f...
+			v: 0x017112202d9aa87e...
+			t: 0x0171122047e2886f...
 		},
 		{
 			p: 3,
 			k: "10",
-			v: 0x01711210b6da2c...
+			v: 0x0171122010b6da2c...
 			t: null
 		}
 	]
@@ -365,9 +365,9 @@ To prevent such scenarios, AT requires all ECDSA signatures to be canonicalized 
 
 Repository content requires consistent binary representation across all implementations to ensure identical content hashes and verifiable integrity. All records, MST nodes, and commits must be encoded using Deterministically Encoded CBOR as specified in {{Section 4.2 of CBOR}}, with map key ordering following the original specification in {{Section 3.9 of RFC7049}} for historical compatibility.
 
-For interoperability purposes, hash links between repository objects are encoded using a specific format within the CBOR structure. SHA-256 hash links are represented as CBOR byte strings under tag 42, with the byte string containing the 32-byte hash value prefixed by the fixed byte sequence `0x017112`.
+For interoperability purposes, hash links between repository objects are encoded using a specific format within the CBOR structure. SHA-256 hash links are represented as CBOR byte strings under tag 42, with the byte string containing the 32-byte hash value prefixed by the fixed byte sequence `0x01711220`.
 
-Hash links that point to arbitrary binary data instead of other repository objects should be encoded similarly though prefixed by the fixed byte sequence `0x015512`.
+Hash links that point to arbitrary binary data instead of other repository objects should be encoded similarly though prefixed by the fixed byte sequence `0x01551220`.
 
 ## Repository Serialization Format {#serialization}
 
@@ -389,7 +389,7 @@ The CBOR-encoded header is prefixed with its byte length encoded as an unsigned 
 Following the header, each repository block is serialized by concatenating:
 
 1. The combined byte length of the following two components, encoded as an unsigned LEB128 integer
-2. The block's content hash, prefixed with `0x017112` as specified in {{cbor}}
+2. The block's content hash, prefixed with `0x01711220` as specified in {{cbor}}
 3. The CBOR-encoded block data
 
 ~~~aasvg
