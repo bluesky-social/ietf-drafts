@@ -21,4 +21,6 @@ Formatted text and HTML versions of the draft can be built using `make`.
 $ make
 ```
 
+To generate XML for submission use `make next`.
+
 Command line usage requires that you have the necessary software installed.  See [the instructions](https://github.com/martinthomson/i-d-template/blob/main/doc/SETUP.md).
