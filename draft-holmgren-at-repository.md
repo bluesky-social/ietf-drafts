@@ -75,13 +75,13 @@ normative:
       -
         fullname: Christopher Allen
         organization: Blockchain Commons
-  DWARF:
-    title: DWARF Debugging Information Format Version 5
-    date: February 2017
-    target: https://dwarfstd.org/doc/DWARF5.pdf
+  WEBASSEMBLY:
+    title: WebAssembly Core Specification
+    date: March 2026
+    target: https://www.w3.org/TR/wasm-core-2
     author:
       -
-        organization: DWARF Debugging Information Format Committee
+        fullname: Andreas Rossberg
   SEC2:
     title: "SEC 2: Recommended Elliptic Curve Domain Parameters"
     date: January 2010
@@ -382,7 +382,7 @@ The header is constructed by CBOR-encoding an object with the following fields:
 - `version` (integer, required): Fixed value of `1`
 - `root` (array, required): Single-element array containing the hash link of the commit block
 
-The CBOR-encoded header is prefixed with its byte length encoded as an unsigned LEB128 integer as described in Section 7.6 of {{DWARF}}.
+The CBOR-encoded header is prefixed with its byte length encoded as an unsigned LEB128 integer as described in Section 5.2.2 of {{WEBASSEMBLY}}.
 
 ### Block Format {#serialization-blocks}
 
