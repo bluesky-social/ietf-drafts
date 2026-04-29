@@ -163,11 +163,11 @@ This document specifically deals with the repository and sync protocol. Overall 
 
 # Repository {#repo}
 
-An AT repository provides a sorted key-value interface where values are CBOR-encoded objects refered to as records. Applications interact with repositories through standard CRUD operations while the underlying Merkle tree structure enables cryptographic verification of all modifications.
+An AT repository provides a sorted key-value interface where values are CBOR-encoded objects referred to as records. Applications interact with repositories through standard CRUD operations while the underlying Merkle tree structure enables cryptographic verification of all modifications.
 
 Repository authority is established through Decentralized Identifiers (DIDs). Each repository is associated with exactly one DID, which resolves to the cryptographic key material necessary for verifying repositories.
 
-The repository structure provides several advantages over individualy signed objects:
+The repository structure provides several advantages over individually signed objects:
 
 - Simplified key rotation through a single repository-level signature rather than record-level signatures
 - Cryptographic proofs of record deletion
@@ -328,7 +328,7 @@ This node would be encoded as follows:
 			t: null
 		}
 	]
-{
+}
 ~~~
 
 ## Commit Signatures {#signatures}
@@ -352,8 +352,8 @@ To generate a commit signature:
 
 AT implementations must support both of the following elliptic curves and signature algorithms:
 
-- NIST P-256 (also known as secp256r1 or p256) {{SEC2}
-- secp256k1 (also known as k256) {{SEC2}
+- NIST P-256 (also known as secp256r1 or p256) {{SEC2}}
+- secp256k1 (also known as k256) {{SEC2}}
 
 ### Signature Canonicalization {#sig-canonicalization}
 
@@ -460,7 +460,7 @@ However, observers without knowledge of the complete baseline repository state c
 
 This means that while diffs enable verification of a known operation list, they cannot be used to exhaustively reconstruct the complete operation list from diff contents alone. However, if a recipient has a complete repository structure from some prior revision and receives a diff representing changes since that revision, they can compute the complete set of operations that occurred between the two versions.
 
-This asymmetry means diffs alone cannot substitute for complete state tracking when comprehensive operation enumeration is required. An efficient mechanism for cross-verification of a diff and enumerated operation list against the prior repository commit state is described in {#streaming-validation}.
+This asymmetry means diffs alone cannot substitute for complete state tracking when comprehensive operation enumeration is required. An efficient mechanism for cross-verification of a diff and enumerated operation list against the prior repository commit state is described in {{streaming-validation}}.
 
 # Real-time synchronization {#realtime}
 
