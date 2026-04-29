@@ -193,6 +193,12 @@ During the re-synchronization process, any incoming commit events for the reposi
 
 # Security Considerations {#security}
 
-Synchronization protocols operate over untrusted infrastructure, where both producers and intermediaries may behave maliciously or unreliably. General security considerations for the repository format itself, including CBOR processing limits and MST structural validation, are covered in {{ATREPO}}.
+General security considerations for the repository format itself, including CBOR processing limits and MST structural validation, are covered in {{ATREPO}}.
 
-Consumers must not rely on the honesty of hosts when determining whether they have received the complete history of a repository. The validation procedures described in {{streaming-validation}} allow consumers to detect desynchronization, but hosts may still withhold events between reconnections. Consumers requiring strong completeness guarantees should corroborate repository state across multiple hosts or rely on third-party observers of the firehose.
+## Resource Abuse {#security-resources}
+
+A producer that routinely emits sync events forces consumers into full re-synchronization, which is substantially more expensive than processing commit events. Similarly, a producer that rapidly updates the same key or issues many small commits can amplify event volume and bandwidth costs on downstream consumers. Consumers should apply rate limits and bandwidth budgets per repository, and may disconnect or deprioritize producers whose event patterns appear abusive.
+
+## Repository Rewinds {#security-rewinds}
+
+Intermediaries that relay firehose events can present a consumer with an outdated view of a repository by replaying older commits or declining to forward newer ones. The `rev` field on each commit can help consumers detect this: a received commit whose `rev` is not greater than the most recently observed `rev` for that repository may indicate that the producer is serving a rewound view. In situations such as this, consumers can cross-check the latest observed `rev` against the canonical host for the repository.
