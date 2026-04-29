@@ -73,8 +73,6 @@ This document builds on the AT repository format specified in {{ATREPO}}. Overal
 
 The Authenticated Transfer (AT) synchronization protocol addresses the challenges of building decentralized applications that require consistent data replication across distributed multi-party infrastructure. In the AT model, user data is stored in cryptographically signed repositories as specified in {{ATREPO}}. The synchronization system provides efficient mechanisms for propagating repository state changes across the network, supporting both real-time streaming updates and bulk synchronization scenarios. The protocol can detect dropped or withheld updates and provides cryptographic proofs for all operations, including record deletions, ensuring that consumers can maintain accurate and complete views of repository state.
 
-# Synchronization {#sync}
-
 The AT synchronization model operates on the principle that any participant can independently verify repository updates. This allows sync to occur between any client and server without requiring that the server is a canonical or trusted host.
 
 AT supports multiple synchronization patterns: full repository synchronization for complete replicas, partial synchronization for specific record subsets, and proof-only synchronization for cryptographic verification without content retrieval.
@@ -83,7 +81,7 @@ The typical synchronization workflow establishes baseline state through full syn
 
 Repositories carry a revision identifier (`rev`) on each commit which functions as a logical clock and must increase monotonically. Revisions may be used when comparing two repositories, especially when obtained from a non-canonical host, to determine which is more recent. The repository revision format, including the recommended Timestamp Identifier (TID) encoding, is specified in {{ATREPO}}.
 
-## Repository Diffs {#diffs}
+# Repository Diffs {#diffs}
 
 Repository diffs enable efficient synchronization by containing only the data that changed between two repository revisions. A diff includes the commit object, MST nodes, and records that differ between an older baseline revision and the current revision. Applying a diff to the baseline repository reconstructs the complete current repository state.
 
@@ -99,7 +97,7 @@ Deleted records and past versions of updated records are excluded from diffs.
 
 With the exception of deleted record data, the diff may include additional blocks which receivers should ignore.
 
-## Diff Verification Limitations {#diff-limits}
+# Diff Verification Limitations {#diff-limits}
 
 Repository diffs present verification challenges for consumers who do not maintain complete repository state. These consumers often wish to authenticate repository content and utilize records without persisting the entire repository structure, making diffs an attractive option for lightweight verification.
 

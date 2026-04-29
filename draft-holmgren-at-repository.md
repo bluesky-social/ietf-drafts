@@ -157,7 +157,6 @@ The Authenticated Transfer (AT) repository addresses the challenges of building 
 
 In the AT model, user data is stored in cryptographically signed repositories that can be hosted, synchronized, and distributed by any compatible server while preserving data authenticity and user ownership. Each repository consists of a set of CBOR-encoded objects called records, organized lexicographically by type. The cryptographic structure allows repository contents to be re-distributed and cached by any network participant without requiring trust in intermediary hosts.
 
-# Repository {#repo}
 
 An AT repository provides a sorted key-value interface where values are CBOR-encoded objects referred to as records. Applications interact with repositories through standard CRUD operations while the underlying Merkle tree structure enables cryptographic verification of all modifications.
 
@@ -171,7 +170,7 @@ The repository structure provides several advantages over individually signed ob
 
 This document describes version `3` of the AT repository format. Both previous versions are deprecated, and implementations do not need to support them.
 
-## Repository Semantics {#repo-semantics}
+# Repository Semantics {#repo-semantics}
 
 Records are discrete units of user data, each CBOR-encoded and identified by a unique key within the repository. The repository is schema-agnostic and provides the foundational layer for higher-level data models and application semantics.
 
@@ -181,7 +180,7 @@ By convention, records are organized using a hierarchical two-part key structure
 
 Repository efficiency, especially when producing cryptographic proofs for a subset of records, benefits from grouping related records around lexicographically similar keys. This grouping allows for structural sharing within the repository data structure and reduces cryptographic proof sizes.
 
-## Repository Structure {#repo-structure}
+# Repository Structure {#repo-structure}
 
 AT repositories are organized as a [Merkle Search Tree](https://inria.hal.science/hal-02303490/document) ({{MST}}) with a cryptographically signed commit referencing the tree root.
 
@@ -191,7 +190,7 @@ Repository contents are encoded using deterministic CBOR serialization and organ
 
 Large binary data such as images and media files are not stored directly within repositories. Instead, such data is stored externally and referenced in records by a hash link.
 
-## User Identifiers {#user-ids}
+# User Identifiers {#user-ids}
 
 Repository authority is established through a resolvable user identifier specified in the repository commit ({{commits}}). AT employs Decentralized Identifiers (DIDs) as defined in {{DID}} for this purpose.
 
@@ -205,7 +204,7 @@ DID resolution may return supplementary information beyond the signing key, incl
 
 To ensure interoperability, AT restricts support to specific DID methods. Currently supported methods are `did:web` and `did:plc`. The resolution mechanisms and specifications for these methods are described in {{DIDWEB}} and {{DIDPLC}}.
 
-## Commit Objects {#commits}
+# Commit Objects {#commits}
 
 Commit objects serve as the authoritative root of each repository, establishing cryptographic ownership and providing a verifiable reference to the state of a repository at a particular point in time. Each commit is digitally signed by the repository owner and contains metadata necessary for verification.
 
@@ -220,13 +219,13 @@ A commit object contains the following data fields:
 
 Commit signature generation and verification procedures are detailed in {{sig-gen}}.
 
-## Repository Revisions {#revs}
+# Repository Revisions {#revs}
 
 Each repository maintains a `rev` field (short for “revision”) that functions as a logical clock for the progression of the contents of the repository over time. The revision value is a short string value that must increase lexicographically with each new commit.
 
 Revisions may be used when comparing two repositories, especially when obtained from a non-canonical host, to determine which is more recent.
 
-### Timestamp Identifier Format {#tids}
+## Timestamp Identifier Format {#tids}
 
 The recommended mechanism for generating revision values is the Timestamp Identifier (TID) format.
 
@@ -242,19 +241,19 @@ The layout of the 64-bit integer is:
 - The next 53 bits represent microseconds since the UNIX epoch. 53 bits is chosen as the maximum safe integer precision in a 64-bit floating point number, as used by Javascript.
 - The final 10 bits are a random "clock identifier."
 
-## MST Construction {#mst}
+# MST Construction {#mst}
 
 The MST structure is deterministically reproducible from any given key-value mapping, where keys are non-empty byte strings and values are hash link references to records. This deterministic construction ensures that identical input sets always produce the same root hash regardless of insertion order.
 
 The tree's structural organization depends solely on the keys present, not on the record values they reference. When a record value changes, the new content hash propagates up through the tree nodes to the root, but the tree's shape and node organization remain unchanged.
 
-### Tree Structure {#mst-structure}
+## Tree Structure {#mst-structure}
 
 Each MST node contains a list of key-value entries and references to child subtrees. Entries and subtree links are maintained in lexicographic order, with all keys in a linked subtree falling within the range corresponding to that link's position. The ordering proceeds from left (lexicographically first) to right (lexicographically last).
 
 Keys are assigned to tree levels based on a layer value computed from the key itself. Nodes at each level contain all keys with the corresponding layer value, while subtree links point to nodes containing keys that fall within specific lexicographic ranges but have lower layer values. Adjacent keys may appear within the same node, but adjacent subtrees must be separated by at least one key entry to prevent structural ambiguity.
 
-### Layer Calculation {#mst-layer}
+## Layer Calculation {#mst-layer}
 
 The layer for a given key is calculated using SHA-256 with a 2-bit grouping scheme that provides an average fanout of 4:
 
@@ -270,7 +269,7 @@ Examples of layer calculation:
 
 When processing the MST structure, implementations must verify the layer assignment and ordering of keys. While this verification is most essential for untrusted inputs, implementations should perform these checks consistently regardless of data source. Additional validation of node size limits and other structural parameters is required to prevent resource exhaustion attacks, as detailed in Security Considerations ({{security}}).
 
-### MST Construction Example {#mst-example}
+## MST Construction Example {#mst-example}
 
 The following is a Merkle Search Tree containing 9 records with keys A-I. Each key would include a pointer to some record hash, though that hash is irrelevant to the construction of the tree. Each asterisk (`*`) represents a hash pointer to the subtree under it.
 
@@ -297,7 +296,7 @@ A   *        E  *  I
 ~~~
 {: #f-mst-example title="Example MST Structure"}
 
-### Empty Nodes {#mst-empty-nodes}
+## Empty Nodes {#mst-empty-nodes}
 
 An empty repository containing no records is represented as a single MST node with no entries. This is the only case where a node without entries is permitted.
 
@@ -305,7 +304,7 @@ Nodes that contain no key entries but do contain subtree links are allowed at in
 
 This structure ensures that nodes lacking key-value entries are pruned from the top and bottom of the tree while preserving intermediate nodes that maintain proper height relationships and prevent subtree links from skipping layers.
 
-### MST Node Schema {#mst-nodes}
+## MST Node Schema {#mst-nodes}
 
 Given their prevalence through the repository structure, MST nodes require a compact binary representation for storage efficiency. Keys within each node use prefix compression, where each entry specifies the number of bytes it shares with the preceding key in the array. The first entry in each node contains the complete key with a prefix length of zero. This compression applies only within individual nodes and does not extend across node boundaries. The compression scheme is mandatory to ensure deterministic MST structure across all implementations.
 
@@ -318,7 +317,7 @@ MST nodes contain the following fields:
     - `v` (hash link, required): Reference to the record data for this entry
     - `t` (hash link, nullable): Reference to a subtree node at a lower layer containing keys that sort after this entry's key but before the next entry's key in the current node
 
-### MST Node example {#mst-node-example}
+## MST Node example {#mst-node-example}
 
 The following example shows an MST node at layer 1 containing two subtree pointers and two key-value entries. The node contents in order are:
 
@@ -349,13 +348,13 @@ This node would be encoded as follows:
 }
 ~~~
 
-## Commit Signatures {#signatures}
+# Commit Signatures {#signatures}
 
 Commit objects are signed by the key declared by the repository owner’s resolvable identifier. Neither the signature nor the signed commit object contains information about the curve type or specific public key used for signing. This information must be obtained by resolving the repository's DID as specified in {{user-ids}}.
 
 The most recent commit must always be verifiable using the currently resolvable signing key. When rotating signing keys, a new repository commit must be created, even if the contents and structure of the repository remain unchanged.
 
-### Signature Generation {#sig-gen}
+## Signature Generation {#sig-gen}
 
 To generate a commit signature:
 
@@ -366,20 +365,20 @@ To generate a commit signature:
 5. Format the signature as a concatenation of the 32-byte `r` and 32-byte `s` values
 6. Add the resulting 64-byte signature to the commit object as the `sig` field
 
-### Supported Curves {#sig-curves}
+## Supported Curves {#sig-curves}
 
 AT implementations must support both of the following elliptic curves and signature algorithms:
 
 - NIST P-256 (also known as secp256r1 or p256) {{SEC2}}
 - secp256k1 (also known as k256) {{SEC2}}
 
-### Signature Canonicalization {#sig-canonicalization}
+## Signature Canonicalization {#sig-canonicalization}
 
 ECDSA signatures exhibit malleability, allowing transformation into distinct but equally valid signatures without access to the private key or original data. While the security impact is limited, signature malleability could enable broadcast of multiple valid versions of the same repository commit with different hashes, potentially causing consumer confusion.
 
 To prevent such scenarios, AT requires all ECDSA signatures to be canonicalized in low-S form. Specifically, the `s` component of the signature must satisfy `s ≤ n/2`, where `n` is the order of the curve's base point.
 
-## Deterministic CBOR Encoding {#cbor}
+# Deterministic CBOR Encoding {#cbor}
 
 Repository content requires consistent binary representation across all implementations to ensure identical content hashes and verifiable integrity. All records, MST nodes, and commits must be encoded using Deterministically Encoded CBOR as specified in {{Section 4.2 of CBOR}}, with map key ordering following the original specification in {{Section 3.9 of RFC7049}} for historical compatibility.
 
@@ -387,13 +386,13 @@ For interoperability purposes, hash links between repository objects are encoded
 
 Hash links that point to arbitrary binary data instead of other repository objects should be encoded similarly though prefixed by the fixed byte sequence `0x01551220`.
 
-## Repository Serialization Format {#serialization}
+# Repository Serialization Format {#serialization}
 
 Repositories are serialized for transmission and storage as a concatenated sequence of block data, where blocks represent the CBOR-encoded records, MST nodes, and commit objects that comprise the repository structure. The serialization is prefixed with a header that identifies the root block, typically the repository's commit object.
 
 Serialized repositories may contain partial repository state, such as when transmitting cryptographic proofs for specific records. In these situations, they may not include unrelated MST nodes or records outside the proof path.
 
-### Header Format {#serialization-header}
+## Header Format {#serialization-header}
 
 The header is constructed by CBOR-encoding an object with the following fields:
 
@@ -402,7 +401,7 @@ The header is constructed by CBOR-encoding an object with the following fields:
 
 The CBOR-encoded header is prefixed with its byte length encoded as an unsigned LEB128 integer as described in Section 5.2.2 of {{WEBASSEMBLY}}.
 
-### Block Format {#serialization-blocks}
+## Block Format {#serialization-blocks}
 
 Following the header, each repository block is serialized by concatenating:
 
@@ -416,7 +415,7 @@ Following the header, each repository block is serialized by concatenating:
 ~~~
 {: #f-serialization title="Repo Serialization Layout"}
 
-### Block Ordering {#serialization-ordering}
+## Block Ordering {#serialization-ordering}
 
 Block ordering should follow preorder traversal of the included repository portion when possible, though parsers must be tolerant of other or unexpected orderings.
 
